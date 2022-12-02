@@ -389,8 +389,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29c922a9ef93e3446b97b8d6b568c294, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attacker: {fileID: 3021740503916023698, guid: e716a98c822e2b2459a1e9a14ec05498, type: 3}
-  defender: {fileID: 828583026989316598, guid: f0f3740ee8a271147a50f2f469e14ae5, type: 3}
+  attacker: {fileID: 775886084985895025, guid: 59c47bd0391c14e4382b237c5c13243d, type: 3}
+  defender: {fileID: 1156476722769696601, guid: 028882b756b42d6479f4398c61e5896c, type: 3}
   grid: {fileID: 1071343046}
 --- !u!1 &1465652507
 GameObject:

@@ -7,8 +7,8 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
 
 
-    [SerializeField] AxieBase attacker;
-    [SerializeField] AxieBase defender;
+    [SerializeField] GameObject attacker;
+    [SerializeField] GameObject defender;
     [SerializeField] GridInitiate grid;
     private void Awake()
     {
