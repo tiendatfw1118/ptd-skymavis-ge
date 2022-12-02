@@ -19,6 +19,10 @@ public class GameController : MonoBehaviour
     public float currentTotalDefenderPower;
     [SerializeField] Image attackerGauge;
     [SerializeField] Image defenderGauge;
+
+    public List<GameObject> attackers;
+    public List<GameObject> defenderers;
+    public bool isSpawningAxies;
     private void Awake()
     {
         grid.axies = attacker;
@@ -30,21 +34,23 @@ public class GameController : MonoBehaviour
 
     }
 
-    public void SelectDefender() 
+    public void SelectDefender()
     {
         Debug.Log("Spawn Defender");
+        isSpawningAxies = true;
         grid.axies = defender;
         grid.isAttacker = false;
     }
-    public void SelectAttacker() 
+    public void SelectAttacker()
     {
         Debug.Log("Spawn Attacker");
+        isSpawningAxies = true;
         grid.axies = attacker;
         grid.isAttacker = true;
     }
     public float CalculatePower(bool isAttacker)
     {
-        if(isAttacker) 
+        if (isAttacker)
         {
             //ToDo calculate total attacker power
             if (IsMaxPower(true))
@@ -61,17 +67,38 @@ public class GameController : MonoBehaviour
             {
                 defenderGauge.fillAmount = 1f;
                 return 1f;
-            } 
+            }
             defenderGauge.fillAmount = (currentTotalDefenderPower * 100) / defenderPowerPeak / 100;
             return defenderGauge.fillAmount;
         }
     }
-    public bool IsMaxPower (bool isAttacker)
+    public bool IsMaxPower(bool isAttacker)
     {
         if (isAttacker)
         {
             return currentTotalAttackerPower >= attackerPowerPeak;
         }
         else return currentTotalDefenderPower >= defenderPowerPeak;
+    }
+    public void StopSpawning()
+    {
+        isSpawningAxies = false;
+    }
+
+    public void StartGame()
+    {
+        if (attackers.Count == 0 || defenderers.Count == 0)
+        {
+            Debug.Log("Can't Start Game");
+            return;
+        }
+        foreach(GameObject attacker in attackers)
+        {
+            Debug.Log(attacker.GetComponent<AxieBase>().id);
+        }
+        foreach (GameObject defender in defenderers)
+        {
+            Debug.Log(defender.GetComponent<AxieBase>().id);
+        }
     }
 }
