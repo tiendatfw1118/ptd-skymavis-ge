@@ -10,6 +10,9 @@ public class GridInitiate : MonoBehaviour
     private int[,] arrayAllocation;
     [HideInInspector]
     public GameObject axies;
+    [HideInInspector]
+    public bool isAttacker;
+    public GameController controller;
     void Start()
     {
         gridLenght = 14;
@@ -35,11 +38,21 @@ public class GridInitiate : MonoBehaviour
                 }
                 arrayAllocation[x, y] = 1;
                 spawnPos = grid.GetWorldPosition(x, y) + new Vector3(10f, 10f) * .5f;
-                Debug.Log(grid.GetWorldPosition(x, y));
-                Instantiate(axies, spawnPos, Quaternion.identity);
-                
-            }
-                
+                if (isAttacker)
+                {
+                    if (controller.IsMaxPower(isAttacker)) return;
+                    controller.currentTotalAttackerPower += axies.GetComponent<AxieBase>().powerPoint;
+                    controller.CalculatePower(isAttacker);
+                    Instantiate(axies, spawnPos, Quaternion.identity);
+                } 
+                else
+                {
+                    if (controller.IsMaxPower(isAttacker)) return;
+                    controller.currentTotalDefenderPower += axies.GetComponent<AxieBase>().powerPoint;
+                    controller.CalculatePower(isAttacker);
+                    Instantiate(axies, spawnPos, Quaternion.identity);
+                }
+            } 
         }
     }
 }

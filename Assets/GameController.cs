@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -10,6 +11,14 @@ public class GameController : MonoBehaviour
     [SerializeField] GameObject attacker;
     [SerializeField] GameObject defender;
     [SerializeField] GridInitiate grid;
+    [SerializeField] int attackerPowerPeak;
+    [SerializeField] int defenderPowerPeak;
+    [HideInInspector]
+    public float currentTotalAttackerPower;
+    [HideInInspector]
+    public float currentTotalDefenderPower;
+    [SerializeField] Image attackerGauge;
+    [SerializeField] Image defenderGauge;
     private void Awake()
     {
         grid.axies = attacker;
@@ -18,17 +27,51 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void SelectDefender() 
     {
         Debug.Log("Spawn Defender");
         grid.axies = defender;
+        grid.isAttacker = false;
     }
     public void SelectAttacker() 
     {
         Debug.Log("Spawn Attacker");
-        grid.axies = attacker;    
+        grid.axies = attacker;
+        grid.isAttacker = true;
+    }
+    public float CalculatePower(bool isAttacker)
+    {
+        if(isAttacker) 
+        {
+            //ToDo calculate total attacker power
+            if (IsMaxPower(true))
+            {
+                attackerGauge.fillAmount = 1f;
+                return 1f;
+            }
+            attackerGauge.fillAmount = (currentTotalAttackerPower * 100) / attackerPowerPeak / 100;
+            return attackerGauge.fillAmount;
+        }
+        else
+        {
+            if (IsMaxPower(false))
+            {
+                defenderGauge.fillAmount = 1f;
+                return 1f;
+            } 
+            defenderGauge.fillAmount = (currentTotalDefenderPower * 100) / defenderPowerPeak / 100;
+            return defenderGauge.fillAmount;
+        }
+    }
+    public bool IsMaxPower (bool isAttacker)
+    {
+        if (isAttacker)
+        {
+            return currentTotalAttackerPower >= attackerPowerPeak;
+        }
+        else return currentTotalDefenderPower >= defenderPowerPeak;
     }
 }

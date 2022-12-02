@@ -9,6 +9,9 @@ public class AxieBase : MonoBehaviour
     [SerializeField] string axiesID;
     [SerializeField] string axiesGenes;
     [SerializeField] Image healthBar;
+    [SerializeField] int hp;
+    [SerializeField] int damage;
+    public float powerPoint;
     void Awake()
     {   
         Mixer.Init();
@@ -18,6 +21,6 @@ public class AxieBase : MonoBehaviour
 
     private void Update()
     {
-        healthBar.fillAmount = 0.5f;
+        healthBar.fillAmount = 1f;
     }
 }
