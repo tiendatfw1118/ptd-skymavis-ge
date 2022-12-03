@@ -5,58 +5,75 @@ using CodeMonkey.Utils;
 public class GridInitiate : MonoBehaviour
 {
     private Grid grid;
-    private int gridLenght;
-    private int gridHeight;
-    private int[,] arrayAllocation;
+    public static int gridLength;
+    public static int gridHeight;
+    public static int[,] arrayAllocation;
     [HideInInspector]
     public GameObject axies;
     [HideInInspector]
     public bool isAttacker;
     public GameController controller;
+    public static GridInitiate instance { get; private set; }
+
+    private void Awake()
+    {
+        instance = this;
+    }
     void Start()
     {
-        gridLenght = 14;
+        isAttacker = axies.GetComponent<AxieBase>().isAttacker;
+        gridLength = 14;
         gridHeight = 10;
-        grid = new Grid(gridLenght, gridHeight, 10f, new Vector3 (-70,-50,0));
-        arrayAllocation = new int[gridLenght, gridHeight];
+        grid = new Grid(gridLength, gridHeight, 10f, new Vector3 (-70,-50,0));
+        arrayAllocation = new int[gridLength, gridHeight];
     }
     //Todo Click On Grid Create Axies
 
     private void Update()
     {
+        if (Input.GetMouseButtonDown(0) && controller.isSpawningAxies)
+        {
+            SpawnAxies();   
+        }
+    }
+    private void SpawnAxies()
+    {
         int x;
         int y;
         Vector3 spawnPos = new Vector3();
-        if (Input.GetMouseButtonDown(0) && controller.isSpawningAxies)
+        grid.GetXY(UtilsClass.GetMouseWorldPosition(), out x, out y);
+        if (x < gridLength && y < gridHeight && x >= 0 && y >= 0)
         {
-            grid.GetXY(UtilsClass.GetMouseWorldPosition(), out x, out y);
-            if (x < gridLenght && y < gridHeight && x >= 0 && y >= 0)
+            if (arrayAllocation[x, y] == 1)
             {
-                if (arrayAllocation[x, y] == 1)
-                {
-                    Debug.Log("Already Spawn");
-                    return;
-                }
-                spawnPos = grid.GetWorldPosition(x, y) + new Vector3(10f, 10f) * .5f;
-                if (isAttacker)
-                {
-                    if (controller.IsMaxPower(isAttacker)) return;
-                    arrayAllocation[x, y] = 1;
-                    controller.currentTotalAttackerPower += axies.GetComponent<AxieBase>().powerPoint;
-                    controller.CalculatePower(isAttacker);
-                    GameObject attacker = Instantiate(axies, spawnPos, Quaternion.identity);
-                    controller.attackers.Add(attacker);
-                } 
-                else
-                {
-                    if (controller.IsMaxPower(isAttacker)) return;
-                    arrayAllocation[x, y] = 1;
-                    controller.currentTotalDefenderPower += axies.GetComponent<AxieBase>().powerPoint;
-                    controller.CalculatePower(isAttacker);
-                    GameObject defender = Instantiate(axies, spawnPos, Quaternion.identity);
-                    controller.defenderers.Add(defender);
-                }
-            } 
+                return;
+            }
+            spawnPos = grid.GetWorldPosition(x, y) + new Vector3(10f, 10f) * .5f;
+            if (isAttacker)
+            {
+                if (controller.IsMaxPower(isAttacker)) return;
+                AxieBase axieBase = axies.GetComponent<AxieBase>();
+                arrayAllocation[x, y] = 1;
+                controller.currentTotalAttackerPower += axieBase.powerPoint;
+                controller.CalculatePower(isAttacker);
+                GameObject attacker = Instantiate(axies, spawnPos, Quaternion.identity);
+                attacker.GetComponent<AxieBase>().currentPosX = x;
+                attacker.GetComponent<AxieBase>().currentPosY = y;
+                controller.attackers.Add(attacker);
+            }
+            else
+            {
+                if (controller.IsMaxPower(isAttacker)) return;
+                AxieBase axieBase = axies.GetComponent<AxieBase>();
+                arrayAllocation[x, y] = 1;
+                controller.currentTotalDefenderPower += axieBase.powerPoint;
+                controller.CalculatePower(isAttacker);
+                GameObject defender = Instantiate(axies, spawnPos, Quaternion.identity);
+                defender.GetComponent<AxieBase>().currentPosX = x;
+                defender.GetComponent<AxieBase>().currentPosY = y;
+                controller.defenderers.Add(defender);
+            }
         }
     }
+
 }

@@ -23,10 +23,11 @@ public class GameController : MonoBehaviour
     public List<GameObject> attackers;
     public List<GameObject> defenderers;
     public bool isSpawningAxies;
+    public GameController instance { get; private set; }
     private void Awake()
     {
+        instance = this;
         grid.axies = attacker;
-
     }
     // Update is called once per frame
     void Update()
@@ -36,14 +37,12 @@ public class GameController : MonoBehaviour
 
     public void SelectDefender()
     {
-        Debug.Log("Spawn Defender");
         isSpawningAxies = true;
         grid.axies = defender;
         grid.isAttacker = false;
     }
     public void SelectAttacker()
     {
-        Debug.Log("Spawn Attacker");
         isSpawningAxies = true;
         grid.axies = attacker;
         grid.isAttacker = true;
