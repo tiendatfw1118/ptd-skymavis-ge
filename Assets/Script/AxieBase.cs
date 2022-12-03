@@ -16,7 +16,9 @@ public class AxieBase : MonoBehaviour
     public GameObject idText;
     public GameObject damageText;
     private int damage;
+    private int currentPathIndex;
     private bool isClicked;
+    private List<Vector3> pathVectorList;
     public int id;
     public float powerPoint;
     public bool isAttacker = false;
@@ -64,7 +66,6 @@ public class AxieBase : MonoBehaviour
         standableGrid = new List<Vector2>();
         if (IsBelongToGrid(currentPosX + 1, currentPosY) && (GridInitiate.arrayAllocation[currentPosX+1, currentPosY] != 1)) //Right Grid
         {
-            Debug.Log(GridInitiate.arrayAllocation[currentPosX+1, currentPosY]);
             standableGrid.Add(new Vector2(currentPosX + 1, currentPosY));
         }
         if (IsBelongToGrid(currentPosX + 1, currentPosY + 1) && (GridInitiate.arrayAllocation[currentPosX + 1, currentPosY + 1] != 1)) //Top Right Grid
@@ -105,12 +106,18 @@ public class AxieBase : MonoBehaviour
         currentPosX = x;
         currentPosY = y;
     }
-    private void Action()
+    public void Action()
     {
         if(isAttacker)
         {
             //TODO loop through Defender list, then loop through standable grid, then do path finding and weight calculate, then move
-            CalculatePathToEnemy();
+            Debug.Log(id +" Is Finding Target to kill");
+            pathVectorList = CalculatePathToEnemy();
+            foreach(var path in pathVectorList)
+            {
+                Debug.Log(path);
+            }
+            HandleMovement();
         }
     }
 
@@ -119,7 +126,8 @@ public class AxieBase : MonoBehaviour
         GameObject currentTarget;
         List<Vector3> pathToTarget = new List<Vector3>();
         int numberOfGridTravel = int.MaxValue;
-        foreach (GameObject defender in GameController.defenderers)
+        if (GameController.instance.defenderers.Count == 0) return null;
+        foreach (GameObject defender in GameController.instance.defenderers)
         {
             var rand = new System.Random();
             AxieBase axie = defender.GetComponent<AxieBase>();
@@ -145,5 +153,23 @@ public class AxieBase : MonoBehaviour
             }
         }
         return pathToTarget;
+    }
+
+    public void HandleMovement()
+    {
+        int i = 0;
+        transform.position = Vector3.Lerp(transform.position, pathVectorList[i], 1f);
+        while (i < pathVectorList.Count)
+        {
+            Debug.Log(i);
+            transform.position = Vector3.Lerp(transform.position, pathVectorList[i] + new Vector3(0,0,-5), 5f);
+            if (Vector3.Distance(transform.position, (pathVectorList[i]) + new Vector3(0, 0, -5)) < 1f) i++;
+            if (i == 100) break;
+        }
+
+    }
+    private void StopMoving()
+    {
+        pathVectorList = null;
     }
 } 

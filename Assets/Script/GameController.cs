@@ -17,8 +17,8 @@ public class GameController : MonoBehaviour
     public float currentTotalDefenderPower;
     [SerializeField] Image attackerGauge;
     [SerializeField] Image defenderGauge;
-    public static List<GameObject> attackers;
-    public static List<GameObject> defenderers;
+    public List<GameObject> attackers;
+    public List<GameObject> defenderers;
     public static bool isStartGame;
     public bool isSpawningAxies;
     private void Awake()
@@ -86,8 +86,15 @@ public class GameController : MonoBehaviour
         if (attackers.Count == 0 || defenderers.Count == 0)
         {
             Debug.Log("Can't Start Game");
+        }
+        else
+        {
+            Debug.Log("Start Game");
             isStartGame = true;
-            return;
+            foreach (GameObject axie in attackers)
+            {
+                axie.GetComponent<AxieBase>().Action();
+            }
         }
     }
 }

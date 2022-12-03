@@ -351,7 +351,12 @@ MonoBehaviour:
   hpText: {fileID: 4217875316264276370}
   idText: {fileID: 7334767712257934717}
   damageText: {fileID: 451080452562511690}
+  id: 0
   powerPoint: 20
+  isAttacker: 1
+  currentPosX: 0
+  currentPosY: 0
+  standableGrid: []
 --- !u!61 &8720973223713624385
 BoxCollider2D:
   m_ObjectHideFlags: 0

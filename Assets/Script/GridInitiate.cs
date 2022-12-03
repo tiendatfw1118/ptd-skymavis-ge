@@ -59,7 +59,7 @@ public class GridInitiate : MonoBehaviour
                 GameObject attacker = Instantiate(axies, spawnPos, Quaternion.identity);
                 attacker.GetComponent<AxieBase>().currentPosX = x;
                 attacker.GetComponent<AxieBase>().currentPosY = y;
-                GameController.attackers.Add(attacker);
+                GameController.instance.attackers.Add(attacker);
             }
             else
             {
@@ -71,7 +71,7 @@ public class GridInitiate : MonoBehaviour
                 GameObject defender = Instantiate(axies, spawnPos, Quaternion.identity);
                 defender.GetComponent<AxieBase>().currentPosX = x;
                 defender.GetComponent<AxieBase>().currentPosY = y;
-                GameController.defenderers.Add(defender);
+                GameController.instance.defenderers.Add(defender);
             }
         }
     }
