@@ -19,6 +19,7 @@ public class AxieBase : MonoBehaviour
     private int currentPathIndex;
     private bool isClicked;
     private List<Vector3> pathVectorList;
+    private int i;
     public int id;
     public float powerPoint;
     public bool isAttacker = false;
@@ -117,7 +118,7 @@ public class AxieBase : MonoBehaviour
             {
                 Debug.Log(path);
             }
-            HandleMovement();
+            InvokeRepeating("HandleMovement", 1f, 1f);
         }
     }
 
@@ -157,16 +158,10 @@ public class AxieBase : MonoBehaviour
 
     public void HandleMovement()
     {
-        int i = 0;
+        if (i >= pathVectorList.Count) return;
         transform.position = Vector3.Lerp(transform.position, pathVectorList[i], 1f);
-        while (i < pathVectorList.Count)
-        {
-            Debug.Log(i);
-            transform.position = Vector3.Lerp(transform.position, pathVectorList[i] + new Vector3(0,0,-5), 5f);
-            if (Vector3.Distance(transform.position, (pathVectorList[i]) + new Vector3(0, 0, -5)) < 1f) i++;
-            if (i == 100) break;
-        }
-
+        transform.position = Vector3.Lerp(transform.position, pathVectorList[i] + new Vector3(0,0,-5), 5f);
+        if (Vector3.Distance(transform.position, (pathVectorList[i]) + new Vector3(0, 0, -5)) < 1f) i++;
     }
     private void StopMoving()
     {
