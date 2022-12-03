@@ -5,9 +5,7 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    // Start is called before the first frame update
-
-
+    public static GameController instance { get; private set; }
     [SerializeField] GameObject attacker;
     [SerializeField] GameObject defender;
     [SerializeField] GridInitiate grid;
@@ -19,11 +17,10 @@ public class GameController : MonoBehaviour
     public float currentTotalDefenderPower;
     [SerializeField] Image attackerGauge;
     [SerializeField] Image defenderGauge;
-
-    public List<GameObject> attackers;
-    public List<GameObject> defenderers;
+    public static List<GameObject> attackers;
+    public static List<GameObject> defenderers;
+    public static bool isStartGame;
     public bool isSpawningAxies;
-    public GameController instance { get; private set; }
     private void Awake()
     {
         instance = this;
@@ -89,15 +86,8 @@ public class GameController : MonoBehaviour
         if (attackers.Count == 0 || defenderers.Count == 0)
         {
             Debug.Log("Can't Start Game");
+            isStartGame = true;
             return;
-        }
-        foreach(GameObject attacker in attackers)
-        {
-            Debug.Log(attacker.GetComponent<AxieBase>().id);
-        }
-        foreach (GameObject defender in defenderers)
-        {
-            Debug.Log(defender.GetComponent<AxieBase>().id);
         }
     }
 }

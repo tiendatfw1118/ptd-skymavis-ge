@@ -33,6 +33,10 @@ public class AxieBase : MonoBehaviour
         var skeletonAnimation = gameObject.GetComponent<SkeletonAnimation>();
         Mixer.SpawnSkeletonAnimation(skeletonAnimation, axiesID, axiesGenes);
     }
+    private void Start()
+    {
+        CalculateGrid();
+    }
 
     private void Update()
     {
@@ -41,7 +45,6 @@ public class AxieBase : MonoBehaviour
     void OnMouseDown()
     {
         isClicked = !isClicked;
-        CalculateGrid();
         DisPlayPos();
         infoPopUp.SetActive(isClicked);
         hpText.GetComponent<TextMeshProUGUI>().text = "HP: "+ hp;
@@ -102,4 +105,45 @@ public class AxieBase : MonoBehaviour
         currentPosX = x;
         currentPosY = y;
     }
-}
+    private void Action()
+    {
+        if(isAttacker)
+        {
+            //TODO loop through Defender list, then loop through standable grid, then do path finding and weight calculate, then move
+            CalculatePathToEnemy();
+        }
+    }
+
+    private List<Vector3> CalculatePathToEnemy()
+    {
+        GameObject currentTarget;
+        List<Vector3> pathToTarget = new List<Vector3>();
+        int numberOfGridTravel = int.MaxValue;
+        foreach (GameObject defender in GameController.defenderers)
+        {
+            var rand = new System.Random();
+            AxieBase axie = defender.GetComponent<AxieBase>();
+            List<Vector2> attackAblePos = axie.standableGrid;
+
+            //Return a random postion to come and attack
+            Vector2 targetGrid = attackAblePos[rand.Next(0, attackAblePos.Count)];
+
+            //Attacker Pos
+            Vector3 startPos = Pathfinding.GetGrid().GetWorldPosition(currentPosX, currentPosY);
+
+            //Target Postion
+            Vector3 endPos = Pathfinding.GetGrid().GetWorldPosition((int)targetGrid.x, (int)targetGrid.y);
+
+            List<Vector3> allPath = Pathfinding.Instance.FindPath(startPos, endPos);
+
+            //Assign closet target
+            if (allPath.Count <= numberOfGridTravel)
+            {
+                numberOfGridTravel = allPath.Count;
+                currentTarget = defender;
+                pathToTarget = allPath;
+            }
+        }
+        return pathToTarget;
+    }
+} 

@@ -4,7 +4,7 @@ using UnityEngine;
 using CodeMonkey.Utils;
 public class GridInitiate : MonoBehaviour
 {
-    private Grid grid;
+    public Pathfinding pathfinding;
     public static int gridLength;
     public static int gridHeight;
     public static int[,] arrayAllocation;
@@ -24,7 +24,7 @@ public class GridInitiate : MonoBehaviour
         isAttacker = axies.GetComponent<AxieBase>().isAttacker;
         gridLength = 14;
         gridHeight = 10;
-        grid = new Grid(gridLength, gridHeight, 10f, new Vector3 (-70,-50,0));
+        pathfinding = new Pathfinding(gridLength, gridHeight);
         arrayAllocation = new int[gridLength, gridHeight];
     }
     //Todo Click On Grid Create Axies
@@ -33,7 +33,7 @@ public class GridInitiate : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && controller.isSpawningAxies)
         {
-            SpawnAxies();   
+            SpawnAxies();
         }
     }
     private void SpawnAxies()
@@ -41,14 +41,14 @@ public class GridInitiate : MonoBehaviour
         int x;
         int y;
         Vector3 spawnPos = new Vector3();
-        grid.GetXY(UtilsClass.GetMouseWorldPosition(), out x, out y);
+        Pathfinding.GetGrid().GetXY(UtilsClass.GetMouseWorldPosition(), out x, out y);
         if (x < gridLength && y < gridHeight && x >= 0 && y >= 0)
         {
-            if (arrayAllocation[x, y] == 1)
+            if (arrayAllocation[x, y] == 1 || GameController.isStartGame)
             {
                 return;
             }
-            spawnPos = grid.GetWorldPosition(x, y) + new Vector3(10f, 10f) * .5f;
+            spawnPos = Pathfinding.GetGrid().GetWorldPosition(x, y) + new Vector3(10f, 10f) * .5f;
             if (isAttacker)
             {
                 if (controller.IsMaxPower(isAttacker)) return;
@@ -59,7 +59,7 @@ public class GridInitiate : MonoBehaviour
                 GameObject attacker = Instantiate(axies, spawnPos, Quaternion.identity);
                 attacker.GetComponent<AxieBase>().currentPosX = x;
                 attacker.GetComponent<AxieBase>().currentPosY = y;
-                controller.attackers.Add(attacker);
+                GameController.attackers.Add(attacker);
             }
             else
             {
@@ -71,9 +71,8 @@ public class GridInitiate : MonoBehaviour
                 GameObject defender = Instantiate(axies, spawnPos, Quaternion.identity);
                 defender.GetComponent<AxieBase>().currentPosX = x;
                 defender.GetComponent<AxieBase>().currentPosY = y;
-                controller.defenderers.Add(defender);
+                GameController.defenderers.Add(defender);
             }
         }
     }
-
 }
