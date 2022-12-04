@@ -16,6 +16,7 @@ public class AxieBase : MonoBehaviour
     public GameObject hpText;
     public GameObject idText;
     public GameObject damageText;
+    public GameObject glowingEffect;
     private float damage;
     private int currentPathIndex = 0;
     private int currentSelectGridIndex = 0;
@@ -35,6 +36,9 @@ public class AxieBase : MonoBehaviour
     public List<Vector2> standableGrid;
     public bool isDying = false;
     private SkeletonAnimation skeletonAnimation;
+    //Time factor
+    private float startTime;
+    private float distance;
     void Awake()
     {
         isClicked = false;
@@ -76,6 +80,7 @@ public class AxieBase : MonoBehaviour
     {
         isClicked = !isClicked;
         infoPopUp.SetActive(isClicked);
+        glowingEffect.SetActive(isClicked);
         hpText.GetComponent<TextMeshProUGUI>().text = "HP: " + hp + "/" + maxHP;
         idText.GetComponent<TextMeshProUGUI>().text = "ID: " + id;
         damageText.GetComponent<TextMeshProUGUI>().text = "Damage: " + damage;
@@ -165,16 +170,17 @@ public class AxieBase : MonoBehaviour
     }
     IEnumerator Action()
     {
+        if (hp == 0) Death();
         Debug.Log("Current Speed " + speedFactor);
-        while(true)
+        while(true && GameController.isStartGame)
         {
             yield return new WaitForSeconds(speedFactor);
-            if (!GameController.isStartGame) yield return null;
             if (isAttacker)
             {
                 //TODO loop through Defender list, then loop through standable grid, then do path finding and weight calculate, then move
                 if (target == null)
                 {
+                    skeletonAnimation.state.SetAnimation(0, "action/idle/normal", true);
                     CalculatePathToEnemy();
                 }
                 if (target != null && !hasReachedTarget)
@@ -200,6 +206,7 @@ public class AxieBase : MonoBehaviour
                 else
                 {
                     if (CalculateFace(target.transform.position).x < 0) skeletonAnimation.skeleton.ScaleX = -1;
+                    FindEnemyGrid();
                     Attack();
                 }
             }
@@ -208,6 +215,7 @@ public class AxieBase : MonoBehaviour
 
     public void StartGame()
     {
+        startTime = Time.time;
         StartCoroutine("Action");
     }
 
@@ -220,6 +228,7 @@ public class AxieBase : MonoBehaviour
             var rand = new System.Random();
             AxieBase axie = defender.GetComponent<AxieBase>();
             List<Vector2> attackAblePos = axie.standableGrid;
+            if (attackAblePos.Count == 0) continue;
             currentSelectGridIndex = rand.Next(0, attackAblePos.Count);
             {
                 //Return a random postion to come and attack
@@ -243,15 +252,16 @@ public class AxieBase : MonoBehaviour
             }
         }
     }
-    public void HandleMovement(int x, int y)
+    public void HandleMovement(int x, int y) 
     { 
         //Where axies on grid is occupied
         int previousX = x;
         int previousY = y;
+        Pathfinding.Instance.GetNode(previousX, previousY).axiesOnNode.Remove(gameObject.GetComponent<AxieBase>());
         int currentX;
         int currentY;
         Pathfinding.grid.GetXY(transform.position, out currentX, out currentY);
-        skeletonAnimation.state.SetAnimation(0, "action/move-forward", true);
+        skeletonAnimation.state.SetAnimation(0, "activity/appear", true);
         currentPosX = currentX;
         currentPosY = currentY;
 
@@ -260,12 +270,12 @@ public class AxieBase : MonoBehaviour
 
         if (currentPathIndex >= pathVectorList.Count)
         {
+            hasReachedTarget = true;
             StopMoving();
             Pathfinding.Instance.GetNode(currentPosX, currentPosY).axiesOnNode.Add(gameObject.GetComponent<AxieBase>());
-            hasReachedTarget = true;
             return;
         }
-        transform.position = Vector3.Lerp(transform.position, pathVectorList[currentPathIndex] + new Vector3(0, 0, -5), 0.5f);
+        transform.position = Vector3.Lerp(transform.position, pathVectorList[currentPathIndex] + new Vector3(0, 0, -5), 1f);
         if (Vector3.Distance(transform.position, (pathVectorList[currentPathIndex]) + new Vector3(0, 0, -5)) < 1f) currentPathIndex++;
     }
     private void StopMoving()
@@ -300,8 +310,10 @@ public class AxieBase : MonoBehaviour
         else skeletonAnimation.skeleton.ScaleX = 1;
         if (target.hp <= 0 || target.isDying)
         {
+            AxieBase tempTarget = target;
             skeletonAnimation.state.SetAnimation(0, "action/idle/normal", true);
             target.Death();
+            target = null;
             if(isAttacker)
             {
                 currentPathIndex = 0;
@@ -309,13 +321,12 @@ public class AxieBase : MonoBehaviour
             }
             else
             {
-                Pathfinding.Instance.GetNode(currentDefenderTargetX, currentDefenderTargetY).axiesOnNode.Remove(target);
+                Pathfinding.Instance.GetNode(currentDefenderTargetX, currentDefenderTargetY).axiesOnNode.Remove(tempTarget);
             }
-            target = null;
         }
         else
         {
-            if (target.isDying)
+            if (target.isDying || target == null)
             {
                 skeletonAnimation.state.SetAnimation(0, "action/idle/normal", true);
                 return;
@@ -329,14 +340,14 @@ public class AxieBase : MonoBehaviour
             }
             if ((3 + damage - target.damage) % 3 == 1)
             {
-                skeletonAnimation.state.SetAnimation(0, "attack/melee/mouth-bite", true);
+                skeletonAnimation.state.SetAnimation(0, "attack/melee/tail-smash", true);
                 target.hp -= 5;
                 target.CalculateHealthBar();
                 return;
             }
             if ((3 + damage - target.damage) % 3 == 2)
             {
-                skeletonAnimation.state.SetAnimation(0, "attack/melee/mouth-bite", true);
+                skeletonAnimation.state.SetAnimation(0, "attack/melee/tail-multi-slap", true);
                 target.hp -= 3;
                 target.CalculateHealthBar();
                 return;
@@ -350,15 +361,19 @@ public class AxieBase : MonoBehaviour
         isDying = true;
         if (isAttacker)
         {
+            GridInitiate.arrayAllocation[currentPosX, currentPosY] = 0;
             GameController.instance.currentTotalAttackerPower -= powerPoint;
             GameController.instance.attackers.Remove(gameObject);
             GameController.instance.CalculatePower(isAttacker);
+            ReCalculateOndead();
         }
         else
         {
+            GridInitiate.arrayAllocation[currentPosX, currentPosY] = 0;
             GameController.instance.currentTotalDefenderPower -= powerPoint;
             GameController.instance.defenderers.Remove(gameObject);
             GameController.instance.CalculatePower(isAttacker);
+            ReCalculateOndead();
         }
         Destroy(gameObject);
     }
@@ -367,5 +382,12 @@ public class AxieBase : MonoBehaviour
     {
         if (isAttacker) Debug.Log(transform.position - pos);
         return transform.position - pos;
+    }
+    public void ReCalculateOndead()
+    {
+        foreach (GameObject defend in GameController.instance.defenderers)
+        {
+            defend.GetComponent<AxieBase>().CalculateGrid();
+        }
     }
 } 
