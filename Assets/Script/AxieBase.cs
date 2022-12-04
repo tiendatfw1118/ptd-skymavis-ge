@@ -36,9 +36,6 @@ public class AxieBase : MonoBehaviour
     public List<Vector2> standableGrid;
     public bool isDying = false;
     private SkeletonAnimation skeletonAnimation;
-    //Time factor
-    private float startTime;
-    private float distance;
     void Awake()
     {
         isClicked = false;
@@ -56,6 +53,10 @@ public class AxieBase : MonoBehaviour
     {
         if (!isAttacker)
             CalculateGrid();
+    }
+    public void Pause()
+    {
+        skeletonAnimation.state.SetAnimation(0, "action/idle/normal", true);
     }
     public void CalculateHealthBar()
     {
@@ -171,7 +172,7 @@ public class AxieBase : MonoBehaviour
     IEnumerator Action()
     {
         if (hp == 0) Death();
-        Debug.Log("Current Speed " + speedFactor);
+        if (!GameController.isStartGame) Pause();
         while(true && GameController.isStartGame)
         {
             yield return new WaitForSeconds(speedFactor);
@@ -215,7 +216,6 @@ public class AxieBase : MonoBehaviour
 
     public void StartGame()
     {
-        startTime = Time.time;
         StartCoroutine("Action");
     }
 
@@ -253,7 +253,8 @@ public class AxieBase : MonoBehaviour
         }
     }
     public void HandleMovement(int x, int y) 
-    { 
+    {
+        if (!GameController.isStartGame) return;
         //Where axies on grid is occupied
         int previousX = x;
         int previousY = y;
@@ -380,7 +381,6 @@ public class AxieBase : MonoBehaviour
 
     public Vector3 CalculateFace(Vector3 pos)
     {
-        if (isAttacker) Debug.Log(transform.position - pos);
         return transform.position - pos;
     }
     public void ReCalculateOndead()

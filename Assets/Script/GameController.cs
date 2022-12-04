@@ -63,6 +63,14 @@ public class GameController : MonoBehaviour
     public void PauseGame()
     {
         isStartGame = false;
+        foreach (GameObject axie in attackers)
+        {
+            axie.GetComponent<AxieBase>().Pause();
+        }
+        foreach (GameObject axie in defenderers)
+        {
+            axie.GetComponent<AxieBase>().Pause();
+        }
     }
 
     public void SelectDefender()
