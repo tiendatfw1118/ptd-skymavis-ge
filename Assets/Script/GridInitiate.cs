@@ -42,7 +42,7 @@ public class GridInitiate : MonoBehaviour
         int y;
         Vector3 spawnPos = new Vector3();
         Pathfinding.GetGrid().GetXY(UtilsClass.GetMouseWorldPosition(), out x, out y);
-        if (x < gridLength && y < gridHeight && x >= 0 && y >= 0)
+        if (x < gridLength -1 && y < gridHeight -1 && x >= 1 && y >= 1)
         {
             if (arrayAllocation[x, y] == 1 || GameController.isStartGame)
             {

@@ -93,7 +93,11 @@ public class GameController : MonoBehaviour
             isStartGame = true;
             foreach (GameObject axie in attackers)
             {
-                axie.GetComponent<AxieBase>().Action();
+                axie.GetComponent<AxieBase>().StartGame();
+            }
+            foreach (GameObject axie in defenderers)
+            {
+                axie.GetComponent<AxieBase>().StartGame();
             }
         }
     }

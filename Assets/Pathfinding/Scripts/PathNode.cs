@@ -17,6 +17,7 @@ using UnityEngine;
 public class PathNode {
 
     private Grid<PathNode> grid;
+    public List<AxieBase> axiesOnNode = new List<AxieBase>();
     public int x;
     public int y;
 
