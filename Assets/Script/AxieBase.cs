@@ -34,6 +34,7 @@ public class AxieBase : MonoBehaviour
     public float speedFactor = 1f;
     public List<Vector2> standableGrid;
     public bool isDying = false;
+    private SkeletonAnimation skeletonAnimation;
     void Awake()
     {
         isClicked = false;
@@ -43,8 +44,9 @@ public class AxieBase : MonoBehaviour
         healthBar.fillAmount = 1f;
         damage = rand.Next(0, 2);
         Mixer.Init();
-        var skeletonAnimation = gameObject.GetComponent<SkeletonAnimation>();
+        skeletonAnimation = gameObject.GetComponent<SkeletonAnimation>();
         Mixer.SpawnSkeletonAnimation(skeletonAnimation, axiesID, axiesGenes);
+        skeletonAnimation.state.SetAnimation(0, "action/idle/normal", true);
     }
     private void Start()
     {
@@ -177,10 +179,14 @@ public class AxieBase : MonoBehaviour
                 }
                 if (target != null && !hasReachedTarget)
                 {
+                    if (CalculateFace(target.transform.position).x < 0) skeletonAnimation.skeleton.ScaleX = -1;
+                    else skeletonAnimation.skeleton.ScaleX = 1;
                     HandleMovement(currentPosX, currentPosY);
                 }
                 if (target != null && hasReachedTarget)
                 {
+                    if (CalculateFace(target.transform.position).x < 0) skeletonAnimation.skeleton.ScaleX = -1;
+                    else skeletonAnimation.skeleton.ScaleX = 1;
                     Attack();
                 }
             }
@@ -193,6 +199,7 @@ public class AxieBase : MonoBehaviour
                 }
                 else
                 {
+                    if (CalculateFace(target.transform.position).x < 0) skeletonAnimation.skeleton.ScaleX = -1;
                     Attack();
                 }
             }
@@ -237,14 +244,14 @@ public class AxieBase : MonoBehaviour
         }
     }
     public void HandleMovement(int x, int y)
-    {
+    { 
         //Where axies on grid is occupied
         int previousX = x;
         int previousY = y;
         int currentX;
         int currentY;
         Pathfinding.grid.GetXY(transform.position, out currentX, out currentY);
-
+        skeletonAnimation.state.SetAnimation(0, "action/move-forward", true);
         currentPosX = currentX;
         currentPosY = currentY;
 
@@ -258,7 +265,7 @@ public class AxieBase : MonoBehaviour
             hasReachedTarget = true;
             return;
         }
-        transform.position = Vector3.Lerp(transform.position, pathVectorList[currentPathIndex] + new Vector3(0, 0, -5), 4f);
+        transform.position = Vector3.Lerp(transform.position, pathVectorList[currentPathIndex] + new Vector3(0, 0, -5), 0.5f);
         if (Vector3.Distance(transform.position, (pathVectorList[currentPathIndex]) + new Vector3(0, 0, -5)) < 1f) currentPathIndex++;
     }
     private void StopMoving()
@@ -289,8 +296,11 @@ public class AxieBase : MonoBehaviour
     }
     private void Attack()
     {
+        if (CalculateFace(target.transform.position).x < 0) skeletonAnimation.skeleton.ScaleX = -1;
+        else skeletonAnimation.skeleton.ScaleX = 1;
         if (target.hp <= 0 || target.isDying)
         {
+            skeletonAnimation.state.SetAnimation(0, "action/idle/normal", true);
             target.Death();
             if(isAttacker)
             {
@@ -305,21 +315,28 @@ public class AxieBase : MonoBehaviour
         }
         else
         {
-            if (target.isDying) return;
+            if (target.isDying)
+            {
+                skeletonAnimation.state.SetAnimation(0, "action/idle/normal", true);
+                return;
+            }
             if((3+ damage - target.damage) % 3 == 0)
             {
+                skeletonAnimation.state.SetAnimation(0, "attack/melee/mouth-bite", true);
                 target.hp -= 4;
                 target.CalculateHealthBar();
                 return;
             }
             if ((3 + damage - target.damage) % 3 == 1)
             {
+                skeletonAnimation.state.SetAnimation(0, "attack/melee/mouth-bite", true);
                 target.hp -= 5;
                 target.CalculateHealthBar();
                 return;
             }
             if ((3 + damage - target.damage) % 3 == 2)
             {
+                skeletonAnimation.state.SetAnimation(0, "attack/melee/mouth-bite", true);
                 target.hp -= 3;
                 target.CalculateHealthBar();
                 return;
@@ -344,5 +361,11 @@ public class AxieBase : MonoBehaviour
             GameController.instance.CalculatePower(isAttacker);
         }
         Destroy(gameObject);
+    }
+
+    public Vector3 CalculateFace(Vector3 pos)
+    {
+        if (isAttacker) Debug.Log(transform.position - pos);
+        return transform.position - pos;
     }
 } 
