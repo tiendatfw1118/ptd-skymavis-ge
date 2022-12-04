@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using AxieMixer.Unity;
 using TMPro;
 using System.Collections.Generic;
+using System.Collections;
 
 public class AxieBase : MonoBehaviour
 {
@@ -48,10 +49,23 @@ public class AxieBase : MonoBehaviour
     }
     public void CalculateHealthBar()
     {
-        Debug.Log(hp + " " + maxHP);
-        healthBar.fillAmount = ((hp * 1) / maxHP);
-        Debug.Log("fill amount " + healthBar.fillAmount);
+        float newHP = ((hp * 1) / maxHP);
+        StartCoroutine(ChangeHealth(healthBar.fillAmount, newHP, 0.6f));
     }
+
+    IEnumerator ChangeHealth(float startHealth, float endHealth, float duration)
+    {
+        float elapsed = 0.0f;
+        while (elapsed < duration)
+        {
+            healthBar.fillAmount = Mathf.Lerp(startHealth, endHealth, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        healthBar.fillAmount = endHealth;
+    }
+
+
     void OnMouseDown()
     {
         isClicked = !isClicked;
