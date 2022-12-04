@@ -23,16 +23,18 @@ public class GameController : MonoBehaviour
     public bool isSpawningAxies;
     public float speedFactor = 1f;
     private float minSpeed = 4f;
-    private float maxSpeed = 0.5f;
+    private float maxSpeed = 0.25f;
     public bool spawnAble = true;
     private void Awake()
     {
         instance = this;
         grid.axies = attacker;
+        Debug.Log(speedFactor / 2);
     }
     public void IncreaseSpeed()
     {
-        speedFactor *= 0.5f;
+        speedFactor = speedFactor / 2f;
+        Debug.Log("Increasing Speed " + speedFactor);
         if (speedFactor <= maxSpeed) speedFactor = maxSpeed;
         foreach (GameObject axie in attackers)
         {
@@ -46,7 +48,8 @@ public class GameController : MonoBehaviour
 
     public void DecreaseSpeed()
     {
-        speedFactor *= 2f;
+        speedFactor = speedFactor * 2f;
+        Debug.Log("Decreasing Speed " + speedFactor);
         if (speedFactor >= minSpeed) speedFactor = minSpeed;
         foreach (GameObject axie in attackers)
         {

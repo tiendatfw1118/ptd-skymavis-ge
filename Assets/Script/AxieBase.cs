@@ -31,13 +31,12 @@ public class AxieBase : MonoBehaviour
     public int currentPosY = 0;
     private int currentDefenderTargetX;
     private int currentDefenderTargetY;
-    public float speedFactor;
+    public float speedFactor = 1f;
     public List<Vector2> standableGrid;
     public bool isDying = false;
     void Awake()
     {
         isClicked = false;
-        speedFactor = 1f;
         var rand = new System.Random();
         id = rand.Next(1, 999999);
         maxHP = hp;
@@ -164,7 +163,7 @@ public class AxieBase : MonoBehaviour
     }
     IEnumerator Action()
     {
-        Debug.Log("Current Speed" + speedFactor);
+        Debug.Log("Current Speed " + speedFactor);
         while(true)
         {
             yield return new WaitForSeconds(speedFactor);
@@ -207,7 +206,6 @@ public class AxieBase : MonoBehaviour
 
     private void CalculatePathToEnemy()
     {
-        Debug.Log(this + " " + "finding new target");
         int numberOfGridTravel = int.MaxValue;
         if (GameController.instance.defenderers.Count == 0) return;
         foreach (GameObject defender in GameController.instance.defenderers)

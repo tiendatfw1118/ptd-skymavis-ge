@@ -356,7 +356,7 @@ MonoBehaviour:
   isAttacker: 1
   currentPosX: 0
   currentPosY: 0
-  speedFactor: 0
+  speedFactor: 1
   standableGrid: []
   isDying: 0
 --- !u!61 &8720973223713624385
