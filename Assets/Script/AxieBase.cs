@@ -194,6 +194,7 @@ public class AxieBase : MonoBehaviour
                 {
                     if (CalculateFace(target.transform.position).x < 0) skeletonAnimation.skeleton.ScaleX = -1;
                     else skeletonAnimation.skeleton.ScaleX = 1;
+                    currentPathIndex = 0;
                     Attack();
                 }
             }
@@ -317,7 +318,6 @@ public class AxieBase : MonoBehaviour
             target = null;
             if(isAttacker)
             {
-                currentPathIndex = 0;
                 hasReachedTarget = false;
             }
             else
