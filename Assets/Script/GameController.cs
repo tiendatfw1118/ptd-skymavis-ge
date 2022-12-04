@@ -21,15 +21,45 @@ public class GameController : MonoBehaviour
     public List<GameObject> defenderers;
     public static bool isStartGame;
     public bool isSpawningAxies;
+    public float speedFactor = 1f;
+    private float minSpeed = 4f;
+    private float maxSpeed = 0.5f;
+    public bool spawnAble = true;
     private void Awake()
     {
         instance = this;
         grid.axies = attacker;
     }
-    // Update is called once per frame
-    void Update()
+    public void IncreaseSpeed()
     {
+        speedFactor *= 0.5f;
+        if (speedFactor <= maxSpeed) speedFactor = maxSpeed;
+        foreach (GameObject axie in attackers)
+        {
+            axie.GetComponent<AxieBase>().speedFactor = speedFactor;
+        }
+        foreach (GameObject axie in defenderers)
+        {
+            axie.GetComponent<AxieBase>().speedFactor = speedFactor;
+        }
+    }
 
+    public void DecreaseSpeed()
+    {
+        speedFactor *= 2f;
+        if (speedFactor >= minSpeed) speedFactor = minSpeed;
+        foreach (GameObject axie in attackers)
+        {
+            axie.GetComponent<AxieBase>().speedFactor = speedFactor;
+        }
+        foreach (GameObject axie in defenderers)
+        {
+            axie.GetComponent<AxieBase>().speedFactor = speedFactor;
+        }
+    }
+    public void PauseGame()
+    {
+        isStartGame = false;
     }
 
     public void SelectDefender()
@@ -83,14 +113,14 @@ public class GameController : MonoBehaviour
 
     public void StartGame()
     {
+        isStartGame = true;
+        spawnAble = false;
         if (attackers.Count == 0 || defenderers.Count == 0)
         {
-            Debug.Log("Can't Start Game");
+            return;
         }
         else
         {
-            Debug.Log("Start Game");
-            isStartGame = true;
             foreach (GameObject axie in attackers)
             {
                 axie.GetComponent<AxieBase>().StartGame();

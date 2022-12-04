@@ -31,11 +31,13 @@ public class AxieBase : MonoBehaviour
     public int currentPosY = 0;
     private int currentDefenderTargetX;
     private int currentDefenderTargetY;
+    public float speedFactor;
     public List<Vector2> standableGrid;
     public bool isDying = false;
     void Awake()
     {
         isClicked = false;
+        speedFactor = 1f;
         var rand = new System.Random();
         id = rand.Next(1, 999999);
         maxHP = hp;
@@ -53,7 +55,7 @@ public class AxieBase : MonoBehaviour
     public void CalculateHealthBar()
     {
         float newHP = ((hp * 1) / maxHP);
-        StartCoroutine(ChangeHealth(healthBar.fillAmount, newHP, 0.6f));
+        StartCoroutine(ChangeHealth(healthBar.fillAmount, newHP, (GameController.instance.speedFactor/2)));
     }
 
     IEnumerator ChangeHealth(float startHealth, float endHealth, float duration)
@@ -79,7 +81,7 @@ public class AxieBase : MonoBehaviour
     }
 
     //TODO Path Finding + Attack Logi
-    void CalculateGrid()
+    public void CalculateGrid()
     {
         standableGrid = new List<Vector2>();
         if (IsBelongToGrid(currentPosX + 1, currentPosY) && (GridInitiate.arrayAllocation[currentPosX + 1, currentPosY] != 1)) //Right Grid
@@ -153,51 +155,54 @@ public class AxieBase : MonoBehaviour
     }
     bool IsBelongToGrid(int x, int y)
     {
-        return x < GridInitiate.gridLength - 1 && y < GridInitiate.gridHeight - 1 && x >= 1 && y >= 1;
+        return x < GridInitiate.gridLength && y < GridInitiate.gridHeight && x >= 1 && y >= 1;
     }
     public void UpdatePos(int x, int y)
     {
         currentPosX = x;
         currentPosY = y;
     }
-    public void Action()
+    IEnumerator Action()
     {
-        if (isAttacker)
+        Debug.Log("Current Speed" + speedFactor);
+        while(true)
         {
-            //TODO loop through Defender list, then loop through standable grid, then do path finding and weight calculate, then move
-            if (target == null)
+            yield return new WaitForSeconds(speedFactor);
+            if (!GameController.isStartGame) yield return null;
+            if (isAttacker)
             {
-                Debug.Log("Finind");
-                CalculatePathToEnemy();
+                //TODO loop through Defender list, then loop through standable grid, then do path finding and weight calculate, then move
+                if (target == null)
+                {
+                    CalculatePathToEnemy();
+                }
+                if (target != null && !hasReachedTarget)
+                {
+                    HandleMovement(currentPosX, currentPosY);
+                }
+                if (target != null && hasReachedTarget)
+                {
+                    Attack();
+                }
             }
-            if (target != null && !hasReachedTarget)
-            {
-                Debug.Log("Moving");
-                HandleMovement(currentPosX, currentPosY);
-            }
-            if (target != null && hasReachedTarget)
-            {
-                Debug.Log("Attacking");
-                Attack();
-            }
-        }
-        //Defender Logic
-        else
-        {
-            if (target == null)
-            {
-                FindEnemyGrid();
-            }
+            //Defender Logic
             else
             {
-                Attack();
+                if (target == null)
+                {
+                    FindEnemyGrid();
+                }
+                else
+                {
+                    Attack();
+                }
             }
         }
     }
 
     public void StartGame()
     {
-        InvokeRepeating("Action", 1f, 1f);
+        StartCoroutine("Action");
     }
 
     private void CalculatePathToEnemy()
@@ -255,7 +260,7 @@ public class AxieBase : MonoBehaviour
             hasReachedTarget = true;
             return;
         }
-        transform.position = Vector3.Lerp(transform.position, pathVectorList[currentPathIndex] + new Vector3(0, 0, -5), 1f);
+        transform.position = Vector3.Lerp(transform.position, pathVectorList[currentPathIndex] + new Vector3(0, 0, -5), 4f);
         if (Vector3.Distance(transform.position, (pathVectorList[currentPathIndex]) + new Vector3(0, 0, -5)) < 1f) currentPathIndex++;
     }
     private void StopMoving()

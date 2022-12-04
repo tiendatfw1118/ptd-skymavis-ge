@@ -42,7 +42,7 @@ public class GridInitiate : MonoBehaviour
         int y;
         Vector3 spawnPos = new Vector3();
         Pathfinding.GetGrid().GetXY(UtilsClass.GetMouseWorldPosition(), out x, out y);
-        if (x < gridLength -1 && y < gridHeight -1 && x >= 1 && y >= 1)
+        if (x < gridLength - 1 && y < gridHeight - 1 && x >= 1 && y >= 1)
         {
             if (arrayAllocation[x, y] == 1 || GameController.isStartGame)
             {
@@ -51,7 +51,7 @@ public class GridInitiate : MonoBehaviour
             spawnPos = Pathfinding.GetGrid().GetWorldPosition(x, y) + new Vector3(10f, 10f) * .5f;
             if (isAttacker)
             {
-                if (controller.IsMaxPower(isAttacker)) return;
+                if (controller.IsMaxPower(isAttacker) || !GameController.instance.spawnAble) return;
                 AxieBase axieBase = axies.GetComponent<AxieBase>();
                 arrayAllocation[x, y] = 1;
                 controller.currentTotalAttackerPower += axieBase.powerPoint;
@@ -63,7 +63,7 @@ public class GridInitiate : MonoBehaviour
             }
             else
             {
-                if (controller.IsMaxPower(isAttacker)) return;
+                if (controller.IsMaxPower(isAttacker) || !GameController.instance.spawnAble) return;
                 AxieBase axieBase = axies.GetComponent<AxieBase>();
                 arrayAllocation[x, y] = 1;
                 controller.currentTotalDefenderPower += axieBase.powerPoint;
@@ -72,6 +72,12 @@ public class GridInitiate : MonoBehaviour
                 defender.GetComponent<AxieBase>().currentPosX = x;
                 defender.GetComponent<AxieBase>().currentPosY = y;
                 GameController.instance.defenderers.Add(defender);
+
+                //Recalculate Standable Grid on each new spawn;
+                foreach(GameObject defend in GameController.instance.defenderers)
+                {
+                    defend.GetComponent<AxieBase>().CalculateGrid();
+                }
             }
         }
     }

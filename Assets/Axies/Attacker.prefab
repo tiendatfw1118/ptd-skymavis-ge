@@ -346,7 +346,7 @@ MonoBehaviour:
   axiesID: 4191804
   axiesGenes: 0x20000000000001000281a000810c0000000100102080830a000100141061020a000100101880c4060001000c0880c50c000100101820c4060001001008804402
   healthBar: {fileID: 2656982604508859799}
-  hp: 1600
+  hp: 16
   infoPopUp: {fileID: 6162257413297447290}
   hpText: {fileID: 4217875316264276370}
   idText: {fileID: 7334767712257934717}
@@ -356,6 +356,7 @@ MonoBehaviour:
   isAttacker: 1
   currentPosX: 0
   currentPosY: 0
+  speedFactor: 0
   standableGrid: []
   isDying: 0
 --- !u!61 &8720973223713624385
