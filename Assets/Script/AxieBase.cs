@@ -29,7 +29,10 @@ public class AxieBase : MonoBehaviour
     public bool isAttacker = false;
     public int currentPosX = 0;
     public int currentPosY = 0;
+    private int currentDefenderTargetX;
+    private int currentDefenderTargetY;
     public List<Vector2> standableGrid;
+    public bool isDying = false;
     void Awake()
     {
         isClicked = false;
@@ -44,8 +47,8 @@ public class AxieBase : MonoBehaviour
     }
     private void Start()
     {
-        if(!isAttacker)
-        CalculateGrid();
+        if (!isAttacker)
+            CalculateGrid();
     }
     public void CalculateHealthBar()
     {
@@ -70,7 +73,7 @@ public class AxieBase : MonoBehaviour
     {
         isClicked = !isClicked;
         infoPopUp.SetActive(isClicked);
-        hpText.GetComponent<TextMeshProUGUI>().text = "HP: " + hp + "/" +maxHP;
+        hpText.GetComponent<TextMeshProUGUI>().text = "HP: " + hp + "/" + maxHP;
         idText.GetComponent<TextMeshProUGUI>().text = "ID: " + id;
         damageText.GetComponent<TextMeshProUGUI>().text = "Damage: " + damage;
     }
@@ -115,7 +118,6 @@ public class AxieBase : MonoBehaviour
 
     void FindEnemyGrid()
     {
-        Debug.Log(this + " " + id + " is finding target");
         if (IsBelongToGrid(currentPosX + 1, currentPosY) && GetEnemyOnNode(currentPosX + 1, currentPosY)) //Right Grid
         {
             return;
@@ -165,19 +167,22 @@ public class AxieBase : MonoBehaviour
             //TODO loop through Defender list, then loop through standable grid, then do path finding and weight calculate, then move
             if (target == null)
             {
-                CalculatePathToEnemy(false);
+                Debug.Log("Finind");
+                CalculatePathToEnemy();
             }
             if (target != null && !hasReachedTarget)
             {
+                Debug.Log("Moving");
                 HandleMovement(currentPosX, currentPosY);
             }
             if (target != null && hasReachedTarget)
             {
+                Debug.Log("Attacking");
                 Attack();
             }
         }
         //Defender Logic
-        else 
+        else
         {
             if (target == null)
             {
@@ -190,13 +195,14 @@ public class AxieBase : MonoBehaviour
         }
     }
 
-    public void StartGame() 
+    public void StartGame()
     {
         InvokeRepeating("Action", 1f, 1f);
     }
 
-    private void CalculatePathToEnemy(bool isRecalculate)
+    private void CalculatePathToEnemy()
     {
+        Debug.Log(this + " " + "finding new target");
         int numberOfGridTravel = int.MaxValue;
         if (GameController.instance.defenderers.Count == 0) return;
         foreach (GameObject defender in GameController.instance.defenderers)
@@ -205,37 +211,8 @@ public class AxieBase : MonoBehaviour
             AxieBase axie = defender.GetComponent<AxieBase>();
             List<Vector2> attackAblePos = axie.standableGrid;
             currentSelectGridIndex = rand.Next(0, attackAblePos.Count);
-            if (!isRecalculate)
-            { 
-                //Return a random postion to come and attack
-                Vector2 targetGrid = attackAblePos[currentSelectGridIndex];
-
-                //Attacker Pos
-                Vector3 startPos = Pathfinding.GetGrid().GetWorldPosition(currentPosX, currentPosY);
-
-                //Target Postion
-                Vector3 endPos = Pathfinding.GetGrid().GetWorldPosition((int)targetGrid.x, (int)targetGrid.y);
-
-                List<Vector3> allPath = Pathfinding.Instance.FindPath(startPos, endPos);
-
-                //Assign closet target
-                if (allPath.Count <= numberOfGridTravel)
-                {
-                    numberOfGridTravel = allPath.Count;
-                    target = defender.GetComponent<AxieBase>();
-                    pathVectorList = allPath;
-                }
-            }
-            else
             {
-                int newNumber;
-                do
-                {
-                  newNumber = rand.Next(0, attackAblePos.Count);
-                } 
-                while (currentSelectGridIndex == newNumber);
-
-                currentSelectGridIndex = newNumber;
+                //Return a random postion to come and attack
                 Vector2 targetGrid = attackAblePos[currentSelectGridIndex];
 
                 //Attacker Pos
@@ -265,15 +242,6 @@ public class AxieBase : MonoBehaviour
         int currentY;
         Pathfinding.grid.GetXY(transform.position, out currentX, out currentY);
 
-        //ToDo OverlapTile
-        //If Next Tile == 1
-        //if(GridInitiate.arrayAllocation[currentX, currentX] == 1)
-        //{
-            //hasReachedTarget = false;
-            //CalculatePathToEnemy(true);
-          //  return;
-        //}
-
         currentPosX = currentX;
         currentPosY = currentY;
 
@@ -282,12 +250,12 @@ public class AxieBase : MonoBehaviour
 
         if (currentPathIndex >= pathVectorList.Count)
         {
-            //StopMoving();
+            StopMoving();
             Pathfinding.Instance.GetNode(currentPosX, currentPosY).axiesOnNode.Add(gameObject.GetComponent<AxieBase>());
             hasReachedTarget = true;
             return;
         }
-        transform.position = Vector3.Lerp(transform.position, pathVectorList[currentPathIndex] + new Vector3(0,0,-5), 1f);
+        transform.position = Vector3.Lerp(transform.position, pathVectorList[currentPathIndex] + new Vector3(0, 0, -5), 1f);
         if (Vector3.Distance(transform.position, (pathVectorList[currentPathIndex]) + new Vector3(0, 0, -5)) < 1f) currentPathIndex++;
     }
     private void StopMoving()
@@ -302,6 +270,8 @@ public class AxieBase : MonoBehaviour
         {
             if (defenderTarget[0].isAttacker) {
                 target = defenderTarget[0];
+                currentDefenderTargetX = x;
+                currentDefenderTargetY = y;
                 return true;
             }
             else
@@ -316,17 +286,23 @@ public class AxieBase : MonoBehaviour
     }
     private void Attack()
     {
-        float targetHP = target.hp;
-        if(targetHP <= 0)
+        if (target.hp <= 0 || target.isDying)
         {
             target.Death();
-            target = null;
             if(isAttacker)
-            hasReachedTarget = false;
+            {
+                currentPathIndex = 0;
+                hasReachedTarget = false;
+            }
+            else
+            {
+                Pathfinding.Instance.GetNode(currentDefenderTargetX, currentDefenderTargetY).axiesOnNode.Remove(target);
+            }
+            target = null;
         }
         else
         {
-            Debug.Log(this+" "+id+ " Start Attacking");
+            if (target.isDying) return;
             if((3+ damage - target.damage) % 3 == 0)
             {
                 target.hp -= 4;
@@ -345,15 +321,25 @@ public class AxieBase : MonoBehaviour
                 target.CalculateHealthBar();
                 return;
             }
-            //Todo implement damage logic
         }
     }
 
     public void Death() 
     {
-        Debug.Log(this + " has died");
-        if (isAttacker) GameController.instance.attackers.Remove(gameObject);
-        else GameController.instance.defenderers.Remove(gameObject);
+        if (isDying) return;
+        isDying = true;
+        if (isAttacker)
+        {
+            GameController.instance.currentTotalAttackerPower -= powerPoint;
+            GameController.instance.attackers.Remove(gameObject);
+            GameController.instance.CalculatePower(isAttacker);
+        }
+        else
+        {
+            GameController.instance.currentTotalDefenderPower -= powerPoint;
+            GameController.instance.defenderers.Remove(gameObject);
+            GameController.instance.CalculatePower(isAttacker);
+        }
         Destroy(gameObject);
     }
 } 

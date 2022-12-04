@@ -137,12 +137,18 @@ MonoBehaviour:
   axiesID: 2724598
   axiesGenes: 0x18000000000001000240a050c210000000010008286045040001000c08814302000100042021430c0001000c2861430a0001000c3061830c0001000c08404302
   healthBar: {fileID: 6836742221787456630}
-  hp: 32
+  hp: 3200
   infoPopUp: {fileID: 7237512728123410324}
   hpText: {fileID: 8588935255417464425}
   idText: {fileID: 3012951521375722116}
   damageText: {fileID: 5092383559639020968}
+  id: 0
   powerPoint: 10
+  isAttacker: 0
+  currentPosX: 0
+  currentPosY: 0
+  standableGrid: []
+  isDying: 0
 --- !u!61 &3452466579128771984
 BoxCollider2D:
   m_ObjectHideFlags: 0

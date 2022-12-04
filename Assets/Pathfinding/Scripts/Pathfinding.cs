@@ -53,8 +53,6 @@ public class Pathfinding
             foreach (PathNode pathNode in path)
             {
                 vectorPath.Add(new Vector3(pathNode.x, pathNode.y) * grid.GetCellSize() + Vector3.one * grid.GetCellSize() * .5f);
-                Debug.Log((new Vector3(pathNode.x, pathNode.y) * grid.GetCellSize() + new Vector3(1, 1, 0) * grid.GetCellSize() * .5f));
-                Debug.Log((new Vector3(pathNode.x, pathNode.y) * grid.GetCellSize() + Vector3.one * grid.GetCellSize() * .5f));
             }
             return vectorPath;
         }
