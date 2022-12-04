@@ -123,6 +123,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &155066036 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 155066036, guid: e7a5901550f00044d888a092059f460a, type: 3}
+  m_PrefabInstance: {fileID: 2273422569549610287}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &224627110
 GameObject:
   m_ObjectHideFlags: 0
@@ -200,6 +205,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &949639856 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 949639856, guid: e7a5901550f00044d888a092059f460a, type: 3}
+  m_PrefabInstance: {fileID: 2273422569549610287}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1071343045
 GameObject:
   m_ObjectHideFlags: 0
@@ -273,6 +283,8 @@ MonoBehaviour:
   isSpawningAxies: 0
   speedFactor: 1
   spawnAble: 1
+  attackerWinBanner: {fileID: 155066036}
+  defenderWinBanner: {fileID: 949639856}
 --- !u!1 &1465652507
 GameObject:
   m_ObjectHideFlags: 0
@@ -2059,6 +2071,38 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 155066036, guid: e7a5901550f00044d888a092059f460a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 155066038, guid: e7a5901550f00044d888a092059f460a, type: 3}
+      propertyPath: m_Color.a
+      value: 0.4392157
+      objectReference: {fileID: 0}
+    - target: {fileID: 949639856, guid: e7a5901550f00044d888a092059f460a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 949639858, guid: e7a5901550f00044d888a092059f460a, type: 3}
+      propertyPath: m_Color.a
+      value: 0.09019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 1461596336, guid: e7a5901550f00044d888a092059f460a, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1461596336, guid: e7a5901550f00044d888a092059f460a, type: 3}
+      propertyPath: m_Color.g
+      value: 0.5267917
+      objectReference: {fileID: 0}
+    - target: {fileID: 1461596336, guid: e7a5901550f00044d888a092059f460a, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1461596336, guid: e7a5901550f00044d888a092059f460a, type: 3}
+      propertyPath: m_FontData.m_FontSize
+      value: 128
+      objectReference: {fileID: 0}
     - target: {fileID: 2273422569212123660, guid: e7a5901550f00044d888a092059f460a, type: 3}
       propertyPath: m_Pivot.x
       value: 0

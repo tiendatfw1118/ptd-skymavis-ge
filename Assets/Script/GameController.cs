@@ -25,6 +25,8 @@ public class GameController : MonoBehaviour
     private float minSpeed = 4f;
     private float maxSpeed = 0.25f;
     public bool spawnAble = true;
+    public GameObject attackerWinBanner;
+    public GameObject defenderWinBanner;
     private void Awake()
     {
         instance = this;
@@ -96,6 +98,7 @@ public class GameController : MonoBehaviour
                 return 1f;
             }
             attackerGauge.fillAmount = (currentTotalAttackerPower * 100) / attackerPowerPeak / 100;
+            if (attackerGauge.fillAmount <= 0f) defenderWinBanner.SetActive(true);
             return attackerGauge.fillAmount;
         }
         else
@@ -106,6 +109,7 @@ public class GameController : MonoBehaviour
                 return 1f;
             }
             defenderGauge.fillAmount = (currentTotalDefenderPower * 100) / defenderPowerPeak / 100;
+            if (defenderGauge.fillAmount <= 0f) attackerWinBanner.SetActive(true);
             return defenderGauge.fillAmount;
         }
     }
